@@ -8,8 +8,8 @@ export interface ChartData {
 
 export function useChartData() {
   const [data] = useState<ChartData[]>([
-    { name: 'Jan', sales: 400, revenue: 600 },
-    { name: 'Feb', sales: 300, revenue: 500 },
+    { name: 'Jan', sales: 400, revenue: 1600 },
+    { name: 'Feb', sales: 300, revenue: 2500 },
     { name: 'Mar', sales: 600, revenue: 800 },
     { name: 'Apr', sales: 800, revenue: 1000 },
     { name: 'May', sales: 500, revenue: 700 },
