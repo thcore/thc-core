@@ -18,7 +18,10 @@ export default function LineChart({ data, isLoading = false }: LineChartProps) {
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <RechartsLineChart data={data}>
+      <RechartsLineChart 
+        data={data}
+        margin={{ top: 20, right: 30, left: 20, bottom: 25 }}
+      >
         <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
         <XAxis dataKey="name" stroke="#9CA3AF" />
         <YAxis stroke="#9CA3AF" />
@@ -26,7 +29,14 @@ export default function LineChart({ data, isLoading = false }: LineChartProps) {
           contentStyle={{ backgroundColor: '#1F2937', border: 'none' }}
           labelStyle={{ color: '#9CA3AF' }}
         />
-        <Legend />
+        <Legend 
+          verticalAlign="top"
+          height={36}
+          wrapperStyle={{
+            paddingBottom: '10px',
+            marginTop: '-10px'
+          }}
+        />
         <Line 
           type="monotone" 
           dataKey="sales" 
