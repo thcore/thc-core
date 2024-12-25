@@ -11,7 +11,7 @@ interface LineChartProps {
 
 export default function LineChart({ data, isLoading = false }: LineChartProps) {
   return (
-    <BaseChart data={data} isLoading={isLoading}>
+    <BaseChart isLoading={isLoading}>
       <RechartsLineChart data={data} {...chartCommonProps}>
         {chartCommonProps.children}
         <Line 
