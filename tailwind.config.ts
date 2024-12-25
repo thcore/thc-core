@@ -1,5 +1,6 @@
-/** @type {import('tailwindcss').Config} */
-module.exports = {
+import type { Config } from "tailwindcss";
+
+const config: Config = {
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -7,12 +8,15 @@ module.exports = {
   ],
   theme: {
     extend: {
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic':
-          'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+      fontFamily: {
+        pretendard: ['Pretendard Variable', 'system-ui', 'sans-serif'],
+        'noto-sans': ['Noto Sans KR', 'system-ui', 'sans-serif'],
+        spoqa: ['Spoqa Han Sans Neo', 'system-ui', 'sans-serif'],
+        suit: ['SUIT Variable', 'system-ui', 'sans-serif'],
       },
     },
   },
   plugins: [],
-}
+};
+
+export default config;
