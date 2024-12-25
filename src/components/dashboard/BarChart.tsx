@@ -11,7 +11,7 @@ interface BarChartProps {
 
 export default function BarChart({ data, isLoading = false }: BarChartProps) {
   return (
-    <BaseChart data={data} isLoading={isLoading}>
+    <BaseChart isLoading={isLoading}>
       <RechartsBarChart data={data} {...chartCommonProps}>
         {chartCommonProps.children}
         <Bar dataKey="sales" fill={CONFIG.CHART.COLORS.SALES} />

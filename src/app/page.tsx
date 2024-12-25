@@ -55,7 +55,7 @@ export default function Home() {
           <h2 className="text-xl font-bold mb-4">레스토랑 현황</h2>
           <div className="space-y-3">
             <p>오늘의 예약: 28건</p>
-            <p>Today's Reservations: 28</p>
+            <p>Today&apos;s Reservations: 28</p>
             <p>현재 테이블 점유율: 75%</p>
             <p>Current Table Occupancy: 75%</p>
             <p>일일 매출 목표 달성률: 92%</p>

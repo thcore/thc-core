@@ -10,7 +10,7 @@ interface BaseChartProps {
   children: ReactElement;
 }
 
-export default function BaseChart({ data, isLoading = false, children }: BaseChartProps) {
+export default function BaseChart({ isLoading = false, children }: Omit<BaseChartProps, 'data'>) {
   if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center">
