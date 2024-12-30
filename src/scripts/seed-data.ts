@@ -5,7 +5,7 @@ import path from 'path'
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') })
 
 import { db } from '@/lib/firebase'
-import { collection, doc, setDoc } from 'firebase/firestore'
+import { addDoc, collection } from 'firebase/firestore'
 
 // 현장 데이터
 const sites = [
@@ -55,14 +55,16 @@ const vendors = [
 async function seedData() {
   try {
     // 현장 데이터 추가
+    const sitesRef = collection(db, 'sites')
     for (const site of sites) {
-      await setDoc(doc(db, 'sites', site.code), site)
+      await addDoc(sitesRef, site)
     }
     console.log('현장 데이터 추가 완료')
 
     // 거래처 데이터 추가
+    const vendorsRef = collection(db, 'vendors')
     for (const vendor of vendors) {
-      await setDoc(doc(db, 'vendors', vendor.id), vendor)
+      await addDoc(vendorsRef, vendor)
     }
     console.log('거래처 데이터 추가 완료')
 
