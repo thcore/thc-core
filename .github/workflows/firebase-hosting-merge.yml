@@ -1,5 +1,5 @@
-# firebase-hosting-merge.yml
-# main 브랜치에 push(merge) 될 때, Firebase Hosting으로 배포
+# .github/workflows/firebase-hosting-merge.yml
+# main 브랜치에 push(merge) 될 때, Firebase Hosting에 프로덕션 배포
 
 name: Deploy to Firebase Hosting on merge
 
@@ -13,8 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # 1) 리포지토리 체크아웃
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       # 2) Node.js 환경 설정
       - name: Setup Node.js
@@ -39,7 +38,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
-      # 5) Next.js 빌드
+      # 5) Next.js 빌드 (out 폴더 생성)
       - name: Build
         run: npm run build
 

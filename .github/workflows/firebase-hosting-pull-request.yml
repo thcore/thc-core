@@ -1,5 +1,5 @@
-# firebase-hosting-pull-request.yml
-# Pull Request가 열릴 때, 미리보기(prerender) 채널로 임시 배포
+# .github/workflows/firebase-hosting-pull-request.yml
+# Pull Request가 열릴 때, Firebase Hosting에 임시 미리보기 채널로 배포
 
 name: Deploy to Firebase Hosting on PR
 
@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   build_and_preview:
-    # PR이 포크(Fork)가 아닌, 원본 저장소 내에서 만들어졌을 때만 동작
+    # PR이 포크(Fork)가 아닌, 동일 저장소 내 브랜치에서 만든 경우만 동작
     if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
     steps:
@@ -34,12 +34,9 @@ jobs:
           EOF
 
       # 3) 의존성 설치 후 빌드
-      - name: Install & Build
-        run: |
-          npm ci
-          npm run build
+      - run: npm ci && npm run build
 
-      # 4) Firebase Hosting 미리보기 채널에 배포 (PR용)
+      # 4) Firebase Hosting 미리보기 채널에 배포 (Pull Request용)
       - name: Deploy to Firebase Preview
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
