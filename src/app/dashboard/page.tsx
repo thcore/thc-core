@@ -1,4 +1,3 @@
-import Card from '@/components/common/Card';
 import DashboardContent from '@/components/dashboard/DashboardContent';
 
 export default function DashboardPage() {
