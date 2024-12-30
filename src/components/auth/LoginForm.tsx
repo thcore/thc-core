@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { FirebaseError } from 'firebase/app';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -10,15 +11,18 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(''); // 이전 에러 메시지 초기화
+    setError('');
     
     try {
-      console.log('로그인 시도:', email); // 디버깅용
+      console.log('로그인 시도:', email);
       await login(email, password);
-      console.log('로그인 성공!'); // 디버깅용
-    } catch (error: any) {
-      console.error('로그인 에러:', error); // 디버깅용
-      setError(error.message || '로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.');
+      console.log('로그인 성공!');
+    } catch (error) {
+      console.error('로그인 에러:', error);
+      const message = error instanceof FirebaseError 
+        ? error.message 
+        : '로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.';
+      setError(message);
     }
   };
 
