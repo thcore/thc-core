@@ -19,7 +19,6 @@ export default function LoginForm() {
   // 상태 관리
   const [formData, setFormData] = useState<FormData>({ email: '', password: '' });
   const [errors, setErrors] = useState<ValidationErrors>({});
-  const [touchedFields, setTouchedFields] = useState<Set<keyof FormData>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
 
@@ -67,7 +66,6 @@ export default function LoginForm() {
   // 필드 포커스 아웃 처리
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name } = e.target;
-    setTouchedFields(prev => new Set(prev).add(name as keyof FormData));
     setErrors(prev => ({
       ...prev,
       [name]: name === 'email' 
