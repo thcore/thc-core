@@ -1,7 +1,7 @@
 'use client'
 
 import { Fragment } from 'react'
-import { Disclosure, Menu } from '@headlessui/react'
+import { Disclosure } from '@headlessui/react'
 import { DocumentTextIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'

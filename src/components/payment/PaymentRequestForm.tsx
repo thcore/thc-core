@@ -11,7 +11,6 @@ export default function PaymentRequestForm() {
 
   const { 
     data: sites, 
-    isLoading: sitesLoading,
     refetch: refetchSites,
     isFetching: isFetchingSites,
     dataUpdatedAt: sitesUpdatedAt
@@ -19,7 +18,6 @@ export default function PaymentRequestForm() {
   
   const { 
     data: vendors, 
-    isLoading: vendorsLoading,
     refetch: refetchVendors,
     isFetching: isFetchingVendors,
     dataUpdatedAt: vendorsUpdatedAt
