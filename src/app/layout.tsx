@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Providers } from '@/components/providers'
+import DashboardLayout from '@/components/layout/DashboardLayout'
 import "@/styles/globals.css";
 
 const inter = Inter({
@@ -21,7 +23,11 @@ export default function RootLayout({
   return (
     <html lang="ko" className={inter.variable}>
       <body>
-        {children}
+        <Providers>
+          <DashboardLayout>
+            {children}
+          </DashboardLayout>
+        </Providers>
       </body>
     </html>
   );
