@@ -2,10 +2,10 @@
 const nextConfig = {
   output: 'export',
   images: {
-    unoptimized: true
+    unoptimized: true,
+    domains: ['source.boringavatars.com']
   },
-  trailingSlash: true,
-  distDir: 'out'
+  trailingSlash: true
 };
 
 module.exports = nextConfig;
