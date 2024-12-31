@@ -5,19 +5,26 @@ import { useFirestoreCollection } from '@/hooks/firestore/useFirestoreCollection
 import { Site, Vendor } from '@/types/payment'
 import RefreshButton from '@/components/common/RefreshButton'
 
-export default function PaymentRequestForm() {
+interface PaymentRequestFormProps {
+  initialData: {
+    sites: Site[];
+    vendors: Vendor[];
+  }
+}
+
+export default function PaymentRequestForm({ initialData }: PaymentRequestFormProps) {
   const [selectedSite, setSelectedSite] = useState('')
   const [selectedVendor, setSelectedVendor] = useState('')
 
   const { 
-    data: sites, 
+    data: sitesList, 
     refetch: refetchSites,
     isFetching: isFetchingSites,
     dataUpdatedAt: sitesUpdatedAt
   } = useFirestoreCollection<Site>('sites')
   
   const { 
-    data: vendors, 
+    data: vendorsList, 
     refetch: refetchVendors,
     isFetching: isFetchingVendors,
     dataUpdatedAt: vendorsUpdatedAt
@@ -29,6 +36,9 @@ export default function PaymentRequestForm() {
       refetchVendors()
     ])
   }
+
+  const sites = sitesList || initialData.sites
+  const vendors = vendorsList || initialData.vendors
 
   return (
     <div className="space-y-4">

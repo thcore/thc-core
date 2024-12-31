@@ -1,4 +1,4 @@
-# THC Nexus
+# THC Core
 
 비즈니스 관리를 위한 통합 플랫폼
 
@@ -14,10 +14,10 @@
 ### 1. 저장소 클론 및 의존성 설치
 ```bash
 # 저장소 클론
-git clone https://github.com/thcore/thc-nexus.git
+git clone https://github.com/thcore/thc-core.git
 
 # 프로젝트 폴더로 이동
-cd thc-nexus
+cd thc-core
 
 # 의존성 설치
 npm install

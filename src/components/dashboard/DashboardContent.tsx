@@ -3,10 +3,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Card from '@/components/common/Card';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 export default function DashboardContent() {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     type: '',
     amount: '',
@@ -22,13 +24,28 @@ export default function DashboardContent() {
     }
   }, [user, loading, router]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const data = { ...formData, userId: user?.uid };
-    console.log('제출된 데이터:', data);
+    setIsSubmitting(true);
+    try {
+      const data = { ...formData, userId: user?.uid };
+      console.log('제출된 데이터:', data);
+      // TODO: API 호출
+      await new Promise(resolve => setTimeout(resolve, 1000)); // 임시 딜레이
+    } catch (error) {
+      console.error('제출 오류:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="lg" text="로딩 중..." />
+      </div>
+    )
+  }
   if (!user) return null;
 
   return (
@@ -134,9 +151,21 @@ export default function DashboardContent() {
 
             <button
               type="submit"
-              className="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600"
+              disabled={isSubmitting}
+              className={`w-full flex justify-center py-2 px-4 border border-transparent 
+                rounded-md shadow-sm text-sm font-medium text-white
+                ${isSubmitting 
+                  ? 'bg-blue-300 cursor-not-allowed' 
+                  : 'bg-blue-600 hover:bg-blue-700'
+                }
+                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+              aria-busy={isSubmitting}
             >
-              제출하기
+              {isSubmitting ? (
+                <LoadingSpinner size="sm" text="제출 중..." />
+              ) : (
+                '제출하기'
+              )}
             </button>
           </form>
         </Card>
