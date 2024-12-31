@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const compat = new FlatCompat({ baseDirectory: __dirname });
 
-const eslintConfig = [
+export default [
   ...compat.extends("next/core-web-vitals"),
   {
     files: ["**/*.ts", "**/*.tsx"],
@@ -16,15 +16,19 @@ const eslintConfig = [
       "@typescript-eslint": typescriptPlugin
     },
     languageOptions: {
-      parser: typescriptParser
+      parser: typescriptParser,
+      parserOptions: {
+        project: "./tsconfig.json"
+      }
     },
     rules: {
       "@next/next/no-img-element": "off",
       "react/no-unescaped-entities": "off",
       "react-hooks/exhaustive-deps": "warn",
       "@typescript-eslint/no-explicit-any": "warn"
+    },
+    linterOptions: {
+      reportUnusedDisableDirectives: true
     }
   }
 ];
-
-export default eslintConfig;
