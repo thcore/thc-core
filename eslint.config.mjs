@@ -26,9 +26,6 @@ export default [
       "react/no-unescaped-entities": "off",
       "react-hooks/exhaustive-deps": "warn",
       "@typescript-eslint/no-explicit-any": "warn"
-    },
-    linterOptions: {
-      reportUnusedDisableDirectives: true
     }
   }
 ];
