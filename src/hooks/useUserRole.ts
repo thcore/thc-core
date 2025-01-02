@@ -10,7 +10,7 @@ type UserRole = 'super_admin' | 'admin' | 'user'
 export function useUserRole() {
   const { user } = useAuth()
 
-  const { data: role } = useQuery({
+  const { data: role, isLoading } = useQuery({
     queryKey: ['userRole', user?.uid],
     queryFn: async (): Promise<UserRole> => {
       if (!user?.uid) return 'user'
@@ -23,6 +23,7 @@ export function useUserRole() {
   
   return {
     role: role || 'user',
+    loading: isLoading,
     isSuperAdmin: role === 'super_admin',
     isAdmin: role === 'admin',
     isUser: role === 'user',

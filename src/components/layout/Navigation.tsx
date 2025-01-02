@@ -5,206 +5,158 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import { useUserRole } from '@/hooks/useUserRole'
-import { useQuery } from '@tanstack/react-query'
-import { doc, getDoc, updateDoc } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
-import type { FirestoreUser } from '@/types/firestore/user'
-import Avatar from 'boring-avatars'
-import AvatarSelector from '../profile/AvatarSelector'
+import { useFirestoreUser } from '@/hooks/firestore/useFirestoreUser'
 import {
   HomeIcon,
-  UserGroupIcon,
-  DocumentTextIcon,
-  CogIcon,
-  ChartBarIcon,
-  ClipboardDocumentListIcon,
-  ArrowRightOnRectangleIcon,
+  BanknotesIcon,
+  UsersIcon,
+  ArrowLeftStartOnRectangleIcon,
 } from '@heroicons/react/24/outline'
+import Avatar from 'boring-avatars'
+import AvatarSelector from '../profile/AvatarSelector'
 import Image from 'next/image'
+import Badge from '@/components/common/Badge'
+import { cn } from '@/utils/cn'
 
-const navigationItems = [
-  { name: '대시보드', href: '/dashboard', icon: HomeIcon },
-  { name: '비용 청구', href: '/payment/request', icon: DocumentTextIcon },
-  { name: '팀 관리', href: '/teams', icon: UserGroupIcon },
-  { name: '보고서', href: '/reports', icon: ChartBarIcon },
-]
-
-const adminNavigationItems = [
-  { name: '시스템 관리', href: '/admin/system', icon: CogIcon },
-  { name: '작업 관리', href: '/admin/tasks', icon: ClipboardDocumentListIcon },
-]
+const navItemStyles = {
+  base: `
+    flex items-center w-full px-[var(--spacing-4)] py-[var(--spacing-2)]
+    rounded-[var(--radii-md)]
+    text-[var(--typography-sizes-sm)]
+    font-[var(--typography-weights-medium)]
+    transition-[var(--transitions-default)]
+  `,
+  active: `
+    bg-[var(--colors-primary-50)]
+    text-[var(--colors-primary-700)]
+  `,
+  inactive: `
+    text-[var(--colors-text-secondary)]
+    hover:bg-[var(--colors-background-secondary)]
+    hover:text-[var(--colors-text-primary)]
+  `,
+}
 
 export default function Navigation() {
   const pathname = usePathname()
-  console.log('Current pathname:', pathname)
   const { user, logout } = useAuth()
   const { role } = useUserRole()
+  const isSuperAdmin = role === 'super_admin'
   const [isAvatarSelectorOpen, setIsAvatarSelectorOpen] = useState(false)
+  const { data: firestoreUser, refetch } = useFirestoreUser()
 
-  const { data: userData, refetch } = useQuery({
-    queryKey: ['userData', user?.uid],
-    queryFn: async () => {
-      if (!user?.uid) return null
-      const docSnap = await getDoc(doc(db, 'users', user.uid))
-      return docSnap.exists() ? (docSnap.data() as FirestoreUser) : null
+  const menuItems = [
+    {
+      name: '대시보드',
+      href: '/dashboard',
+      icon: HomeIcon,
     },
-    enabled: !!user,
-  })
+    {
+      name: '비용 청구',
+      href: '/payment/request',
+      icon: BanknotesIcon,
+    },
+  ]
 
-  const handleAvatarSelect = async (config: { name: string, variant: 'beam' | 'marble' | 'pixel' | 'sunset' | 'ring', colors: string[] }) => {
-    if (!user?.uid) return
-    
-    try {
-      await updateDoc(doc(db, 'users', user.uid), {
-        avatarConfig: config
-      })
-      await refetch()
-    } catch (error) {
-      console.error('Failed to update avatar:', error)
-    }
-    
-    setIsAvatarSelectorOpen(false)
+  if (isSuperAdmin) {
+    menuItems.push({
+      name: '사용자 관리',
+      href: '/admin/users',
+      icon: UsersIcon,
+    })
   }
 
-  const isCurrentPath = (href: string) => {
-    const currentPath = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname
-    
-    if (href === '/dashboard') {
-      return currentPath === href || currentPath === '/'
+  const handleAvatarChange = async () => {
+    setIsAvatarSelectorOpen(true)
+  }
+
+  const isCurrentPath = (path: string) => {
+    return pathname.startsWith(path)
+  }
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+    } catch (error) {
+      console.error('로그아웃 실패:', error)
     }
-    return currentPath.startsWith(href)
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-3rem)]">
-      {/* 프로필 섹션 */}
-      <div className="p-4 mb-2">
-        <div className="flex flex-col items-center text-center">
-          <button 
-            onClick={() => setIsAvatarSelectorOpen(true)}
-            className="focus:outline-none mb-4"
+    <div className="flex flex-col h-full border-r border-[var(--colors-border-default)] w-[var(--layout-sidebar-width)]">
+      <div className="py-[var(--spacing-8)] px-[var(--spacing-6)] border-b border-[var(--colors-border-default)] mt-[var(--layout-spacing-section)]">
+        <div className="text-center">
+          <button
+            onClick={handleAvatarChange}
+            className="inline-block mb-[var(--spacing-4)] rounded-full overflow-hidden"
           >
-            {userData?.profileImage ? (
-              <Image 
-                src={userData.profileImage} 
-                alt="User avatar" 
-                width={32} 
-                height={32}
+            {firestoreUser?.profileImage ? (
+              <Image
+                src={firestoreUser.profileImage}
+                alt="프로필 이미지"
+                width={80} 
+                height={80}
                 className="rounded-full"
               />
             ) : (
               <Avatar
-                {...(userData?.avatarConfig || {
-                  name: userData?.email || 'default',
+                {...(firestoreUser?.avatarConfig || {
+                  name: firestoreUser?.email || 'default',
                   variant: 'beam',
                   colors: ["#92A1C6", "#146A7C", "#F0AB3D", "#C271B4", "#C20D90"]
                 })}
-                size={96}
+                size={80}
               />
             )}
           </button>
-          <div className="space-y-1.5">
-            <h3 className="font-medium text-gray-900 text-lg">{userData?.name}</h3>
-            <p className="text-sm text-gray-600">
-              {userData?.department} · {userData?.position}
-            </p>
-            <p className="text-xs text-gray-500">{userData?.corporationId}</p>
-            <div className="flex items-center justify-center gap-1.5 flex-wrap">
-              {role === 'super_admin' && (
-                <>
-                  <span className="px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-800">
-                    최고관리자
-                  </span>
-                  <span className="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800">
-                    관리자
-                  </span>
-                </>
-              )}
-              {role === 'admin' && (
-                <span className="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800">
-                  관리자
-                </span>
-              )}
+
+          <h3 className="text-[var(--typography-sizes-base)] font-[var(--typography-weights-medium)] mb-[var(--spacing-1)]">
+            {firestoreUser?.name || firestoreUser?.email}
+          </h3>
+          <div className="text-[var(--typography-sizes-sm)] text-[var(--colors-text-secondary)] mb-[var(--spacing-1)]">THC</div>
+          {firestoreUser?.department && (
+            <div className="text-[var(--typography-sizes-sm)] text-[var(--colors-text-secondary)] mb-[var(--spacing-2)]">
+              {firestoreUser.department} · {firestoreUser.position}
             </div>
-          </div>
+          )}
+          <Badge variant="primary" size="sm">
+            {role === 'super_admin' ? '최고관리자' : role === 'admin' ? '관리자' : '사용자'}
+          </Badge>
         </div>
       </div>
 
-      {/* 네비게이션 메뉴 */}
-      <nav className="flex-1 px-2">
-        <div className="space-y-1">
-          {navigationItems.map((item) => (
+      <nav className="flex-1 overflow-y-auto p-[var(--spacing-4)]">
+        <div className="space-y-[var(--spacing-1)]">
+          {menuItems.map((item) => (
             <Link
               key={item.name}
               href={item.href}
-              className={`
-                flex items-center px-3 py-2 text-sm rounded-md transition-colors
-                ${isCurrentPath(item.href)
-                  ? 'bg-blue-100 text-blue-900 font-medium' 
-                  : 'text-gray-600 hover:bg-gray-100'}
-              `}
+              className={cn(
+                navItemStyles.base,
+                isCurrentPath(item.href) ? navItemStyles.active : navItemStyles.inactive
+              )}
             >
-              <item.icon 
-                className={`w-5 h-5 mr-2.5 ${
-                  isCurrentPath(item.href)
-                    ? 'text-blue-600' 
-                    : 'text-gray-500'
-                }`}
-              />
+              <item.icon className="w-5 h-5 mr-[var(--spacing-3)] flex-shrink-0" />
               {item.name}
             </Link>
           ))}
         </div>
-
-        {/* 관리자 메뉴 */}
-        {role === 'super_admin' && (
-          <div className="mt-8">
-            <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              관리자 메뉴
-            </h3>
-            <div className="mt-2 space-y-1">
-              {adminNavigationItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`
-                    flex items-center px-3 py-2 text-sm rounded-md transition-colors
-                    ${isCurrentPath(item.href)
-                      ? 'bg-blue-100 text-blue-900 font-medium' 
-                      : 'text-gray-600 hover:bg-gray-100'}
-                  `}
-                >
-                  <item.icon 
-                    className={`w-5 h-5 mr-2.5 ${
-                      isCurrentPath(item.href)
-                        ? 'text-blue-600' 
-                        : 'text-gray-500'
-                    }`}
-                  />
-                  {item.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
       </nav>
 
-      {/* 로그아웃 버튼 */}
-      <div className="p-2">
+      <div className="p-[var(--spacing-4)] border-t border-[var(--colors-border-default)]">
         <button
-          onClick={logout}
-          className="w-full flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+          onClick={handleLogout}
+          className={cn(navItemStyles.base, navItemStyles.inactive, 'w-full')}
         >
-          <ArrowRightOnRectangleIcon className="w-5 h-5 mr-2.5 text-gray-500" />
+          <ArrowLeftStartOnRectangleIcon className="w-5 h-5 mr-[var(--spacing-3)] flex-shrink-0" />
           로그아웃
         </button>
       </div>
 
-      {/* 아바타 선택기 */}
       <AvatarSelector
         isOpen={isAvatarSelectorOpen}
         onClose={() => setIsAvatarSelectorOpen(false)}
-        onSelect={handleAvatarSelect}
+        onSelect={() => refetch()}
         userId={user?.uid || ''}
       />
     </div>

@@ -4,7 +4,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'THC Core',
-  description: 'THC Core Application',
+  description: 'THC Core Application'
 }
 
 export default function RootLayout({

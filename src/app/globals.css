@@ -5,17 +5,306 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 기본 스타일 */
+/* 라이트 테마 (기본) */
 :root {
-  --background: #ffffff;
-  --foreground: #000000;
-  --card-background: #ffffff;
-  --border-color: #e5e7eb;
+  /* Base Colors */
+  --colors-primary-50: #e6f7ff;
+  --colors-primary-100: #bae7ff;
+  --colors-primary-200: #91d5ff;
+  --colors-primary-300: #69c0ff;
+  --colors-primary-400: #40a9ff;
+  --colors-primary-500: #1890ff;
+  --colors-primary-600: #096dd9;
+  --colors-primary-700: #0050b3;
+  --colors-primary-800: #003a8c;
+  --colors-primary-900: #002766;
+
+  --colors-neutral-50: #fafafa;
+  --colors-neutral-100: #f5f5f5;
+  --colors-neutral-150: #f0f0f0;  /* 미세 구분 추가 */
+  --colors-neutral-200: #e8e8e8;
+  --colors-neutral-250: #e0e0e0;  /* 미세 구분 추가 */
+  --colors-neutral-300: #d9d9d9;
+  --colors-neutral-400: #bfbfbf;
+  --colors-neutral-500: #8c8c8c;
+  --colors-neutral-600: #595959;
+  --colors-neutral-650: #525252;  /* 미세 구분 추가 */
+  --colors-neutral-700: #434343;
+  --colors-neutral-750: #383838;  /* 미세 구분 추가 */
+  --colors-neutral-800: #262626;
+  --colors-neutral-900: #1f1f1f;
+
+  /* Semantic Colors - 단계 보강 */
+  --colors-success-50: #f6ffed;
+  --colors-success-100: #d9f7be;
+  --colors-success-200: #b7eb8f;  /* 약한 성공 */
+  --colors-success-300: #95de64;  /* 보통 성공 */
+  --colors-success-400: #73d13d;  /* 강한 성공 */
+  --colors-success-500: #52c41a;
+  --colors-success-600: #389e0d;
+  --colors-success-700: #237804;
+
+  --colors-warning-50: #fffbe6;
+  --colors-warning-100: #fff1b8;
+  --colors-warning-200: #ffd666;  /* 약한 경고 */
+  --colors-warning-300: #ffc53d;  /* 보통 경고 */
+  --colors-warning-400: #faad14;  /* 강한 경고 */
+  --colors-warning-500: #d48806;
+  --colors-warning-600: #ad6800;
+  --colors-warning-700: #874d00;
+
+  --colors-danger-50: #fff1f0;
+  --colors-danger-100: #ffccc7;
+  --colors-danger-200: #ffa39e;  /* 약한 위험 */
+  --colors-danger-300: #ff7875;  /* 보통 위험 */
+  --colors-danger-400: #ff4d4f;  /* 강한 위험 */
+  --colors-danger-500: #f5222d;
+  --colors-danger-600: #cf1322;
+  --colors-danger-700: #a8071a;
+
+  /* Contextual Colors */
+  --colors-background-primary: var(--colors-neutral-50);
+  --colors-background-secondary: var(--colors-neutral-100);
+  --colors-background-tertiary: var(--colors-neutral-200);
+  --colors-background-emphasis: var(--colors-primary-50);
+  --colors-background-disabled: var(--colors-neutral-100);
+  --colors-background-overlay: rgba(0, 0, 0, 0.45);
+  --colors-background-spotlight: var(--colors-primary-900);
+
+  --colors-text-primary: var(--colors-neutral-900);
+  --colors-text-secondary: var(--colors-neutral-600);
+  --colors-text-tertiary: var(--colors-neutral-500);
+  --colors-text-disabled: var(--colors-neutral-400);
+  --colors-text-inverse: var(--colors-neutral-50);
+  --colors-text-link: var(--colors-primary-600);
+  --colors-text-code: var(--colors-neutral-800);
+  --colors-text-mark: var(--colors-warning-100);
+
+  --colors-border-default: var(--colors-neutral-200);
+  --colors-border-strong: var(--colors-neutral-300);
+  --colors-border-hover: var(--colors-neutral-300);
+  --colors-border-focus: var(--colors-primary-500);
+  --colors-border-emphasis: var(--colors-primary-300);
+  --colors-border-disabled: var(--colors-neutral-200);
+  --colors-border-selected: var(--colors-primary-500);
+
+  /* Interactive Colors */
+  --colors-action-primary: var(--colors-primary-500);
+  --colors-action-primaryHover: var(--colors-primary-600);
+  --colors-action-primaryActive: var(--colors-primary-700);
+  --colors-action-primaryDisabled: var(--colors-neutral-200);
+  --colors-action-primaryFocus: var(--colors-primary-400);
+  --colors-action-primarySubtle: var(--colors-primary-50);
+
+  --colors-action-secondary: var(--colors-neutral-200);
+  --colors-action-secondaryHover: var(--colors-neutral-300);
+  --colors-action-secondaryActive: var(--colors-neutral-400);
+  --colors-action-secondaryDisabled: var(--colors-neutral-100);
+  --colors-action-secondaryFocus: var(--colors-neutral-300);
+  --colors-action-secondarySubtle: var(--colors-neutral-50);
+
+  /* Feedback Colors */
+  --colors-feedback-info: var(--colors-primary-500);
+  --colors-feedback-infoSubtle: var(--colors-primary-50);
+  --colors-feedback-infoStrong: var(--colors-primary-700);
+  --colors-feedback-infoMuted: var(--colors-primary-200);
+
+  --colors-feedback-success: var(--colors-success-500);
+  --colors-feedback-successSubtle: var(--colors-success-50);
+  --colors-feedback-successStrong: var(--colors-success-700);
+  --colors-feedback-successMuted: var(--colors-success-200);
+
+  --colors-feedback-warning: var(--colors-warning-500);
+  --colors-feedback-warningSubtle: var(--colors-warning-50);
+  --colors-feedback-warningStrong: var(--colors-warning-700);
+  --colors-feedback-warningMuted: var(--colors-warning-200);
+
+  --colors-feedback-danger: var(--colors-danger-500);
+  --colors-feedback-dangerSubtle: var(--colors-danger-50);
+  --colors-feedback-dangerStrong: var(--colors-danger-700);
+  --colors-feedback-dangerMuted: var(--colors-danger-200);
+
+  /* State Colors */
+  --colors-state-hover: var(--colors-neutral-100);
+  --colors-state-selected: var(--colors-primary-50);
+  --colors-state-focused: var(--colors-primary-100);
+  --colors-state-pressed: var(--colors-neutral-200);
+  --colors-state-disabled: var(--colors-neutral-100);
+  --colors-state-loading: var(--colors-neutral-150);
+
+  /* Typography */
+  --typography-fonts-base: "Pretendard Variable", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  
+  --typography-sizes-xs: 0.75rem;    /* 12px */
+  --typography-sizes-sm: 0.875rem;   /* 14px */
+  --typography-sizes-base: 1rem;     /* 16px */
+  --typography-sizes-lg: 1.125rem;   /* 18px */
+  --typography-sizes-xl: 1.25rem;    /* 20px */
+  --typography-sizes-2xl: 1.5rem;    /* 24px */
+  --typography-sizes-3xl: 1.875rem;  /* 30px */
+  --typography-sizes-4xl: 2.25rem;   /* 36px */
+
+  --typography-weights-light: 300;
+  --typography-weights-normal: 400;
+  --typography-weights-medium: 500;
+  --typography-weights-semibold: 600;
+  --typography-weights-bold: 700;
+
+  --typography-line-heights-none: 1;
+  --typography-line-heights-tight: 1.25;
+  --typography-line-heights-snug: 1.375;
+  --typography-line-heights-normal: 1.5;
+  --typography-line-heights-relaxed: 1.625;
+  --typography-line-heights-loose: 2;
+
+  /* Radii */
+  --radii-none: 0;
+  --radii-sm: 0.125rem;  /* 2px */
+  --radii-base: 0.25rem; /* 4px */
+  --radii-md: 0.375rem;  /* 6px */
+  --radii-lg: 0.5rem;    /* 8px */
+  --radii-xl: 0.75rem;   /* 12px */
+  --radii-2xl: 1rem;     /* 16px */
+  --radii-full: 9999px;
+
+  /* Transitions */
+  --transitions-default: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transitions-fast: 100ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transitions-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Shadows */
+  --shadows-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadows-base: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadows-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadows-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadows-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  /* Z-indices */
+  --z-indices-hide: -1;
+  --z-indices-base: 0;
+  --z-indices-dropdown: 1000;
+  --z-indices-sticky: 1100;
+  --z-indices-modal: 1300;
+  --z-indices-popover: 1400;
+  --z-indices-tooltip: 1500;
+
+  /* Spacing */
+  --spacing-0: 0;
+  --spacing-px: 1px;
+  --spacing-0-5: 0.125rem;  /* 2px */
+  --spacing-1: 0.25rem;     /* 4px */
+  --spacing-1-5: 0.375rem;  /* 6px */
+  --spacing-2: 0.5rem;      /* 8px */
+  --spacing-2-5: 0.625rem;  /* 10px */
+  --spacing-3: 0.75rem;     /* 12px */
+  --spacing-3-5: 0.875rem;  /* 14px */
+  --spacing-4: 1rem;        /* 16px */
+  --spacing-5: 1.25rem;     /* 20px */
+  --spacing-6: 1.5rem;      /* 24px */
+  --spacing-7: 1.75rem;     /* 28px */
+  --spacing-8: 2rem;        /* 32px */
+  --spacing-9: 2.25rem;     /* 36px */
+  --spacing-10: 2.5rem;     /* 40px */
+  --spacing-11: 2.75rem;    /* 44px */
+  --spacing-12: 3rem;       /* 48px */
+  --spacing-14: 3.5rem;     /* 56px */
+  --spacing-16: 4rem;       /* 64px */
+  --spacing-20: 5rem;       /* 80px */
+  --spacing-24: 6rem;       /* 96px */
+  --spacing-28: 7rem;       /* 112px */
+  --spacing-32: 8rem;       /* 128px */
+  --spacing-36: 9rem;       /* 144px */
+  --spacing-40: 10rem;      /* 160px */
+  --spacing-44: 11rem;      /* 176px */
+  --spacing-48: 12rem;      /* 192px */
+  --spacing-52: 13rem;      /* 208px */
+  --spacing-56: 14rem;      /* 224px */
+  --spacing-60: 15rem;      /* 240px */
+  --spacing-64: 16rem;      /* 256px */
+  --spacing-72: 18rem;      /* 288px */
+  --spacing-80: 20rem;      /* 320px */
+  --spacing-96: 24rem;      /* 384px */
+
+  /* Layout */
+  --layout-max-width: 1280px;
+  --layout-container-padding: var(--spacing-4);
+  --layout-content-padding: var(--spacing-6);
+  --layout-sidebar-width: var(--spacing-64);
+  --layout-sidebar-collapsed-width: var(--spacing-20);
+  --layout-topbar-height: var(--spacing-16);
+  --layout-footer-height: var(--spacing-16);
+
+  /* Grid */
+  --grid-gap-x: var(--spacing-6);
+  --grid-gap-y: var(--spacing-6);
+  --grid-columns: 12;
+
+  /* Layout System */
+  --layout-spacing-page: var(--spacing-8);     /* 32px - 페이지 전체 여백 */
+  --layout-spacing-section: var(--spacing-6);  /* 24px - 섹션 간 여백 */
+  --layout-spacing-content: var(--spacing-4);  /* 16px - 컨텐츠 영역 여백 */
+
+  /* Container Spacing - 컨테이너 내부 여백 */
+  --container-spacing-lg: var(--spacing-6);    /* 24px - 큰 컨테이너(카드 등) */
+  --container-spacing-md: var(--spacing-4);    /* 16px - 중간 컨테이너 */
+  --container-spacing-sm: var(--spacing-3);    /* 12px - 작은 컨테이너 */
+
+  /* Component Spacing - 컴포넌트 내부 요소 간 여백 */
+  --component-spacing-lg: var(--spacing-4);    /* 16px - 큰 요소 간격 */
+  --component-spacing-md: var(--spacing-3);    /* 12px - 중간 요소 간격 */
+  --component-spacing-sm: var(--spacing-2);    /* 8px - 작은 요소 간격 */
+
+  /* Element Spacing - 텍스트, 아이콘 등 작은 요소 간 여백 */
+  --element-spacing-lg: var(--spacing-3);      /* 12px - 큰 간격 */
+  --element-spacing-md: var(--spacing-2);      /* 8px - 중간 간격 */
+  --element-spacing-sm: var(--spacing-1);      /* 4px - 작은 간격 */
+
+  /* Grid Spacing */
+  --grid-spacing-lg: var(--spacing-6);         /* 24px - 큰 그리드 갭 */
+  --grid-spacing-md: var(--spacing-4);         /* 16px - 중간 그리드 갭 */
+  --grid-spacing-sm: var(--spacing-3);         /* 12px - 작은 그리드 갭 */
 }
 
-/* 모든 요소에 Pretendard 적용 */
+/* 다크 테마 */
+[data-theme='dark'] {
+  --colors-background-primary: var(--colors-neutral-900);
+  --colors-background-secondary: var(--colors-neutral-800);
+  --colors-background-tertiary: var(--colors-neutral-700);
+
+  --colors-text-primary: var(--colors-neutral-50);
+  --colors-text-secondary: var(--colors-neutral-300);
+  --colors-text-tertiary: var(--colors-neutral-400);
+  --colors-text-disabled: var(--colors-neutral-600);
+
+  --colors-border-default: var(--colors-neutral-700);
+  --colors-border-hover: var(--colors-neutral-600);
+
+  --colors-action-secondary: var(--colors-neutral-700);
+  --colors-action-secondaryHover: var(--colors-neutral-600);
+  --colors-action-secondaryActive: var(--colors-neutral-500);
+}
+
+/* 기본 스타일 */
 body {
-  font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  background-color: var(--background);
-  color: var(--foreground);
+  font-family: var(--typography-fonts-base);
+  font-size: var(--typography-sizes-base);
+  line-height: var(--typography-line-heights-normal);
+  background-color: var(--colors-background-primary);
+  color: var(--colors-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 레이아웃 유틸리티 */
+.container {
+  width: 100%;
+  max-width: var(--layout-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--layout-container-padding);
+  padding-right: var(--layout-container-padding);
+}
+
+.content-area {
+  padding: var(--layout-content-padding);
 }

@@ -6,7 +6,8 @@ import {
   onAuthStateChanged,
   User
 } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { doc, updateDoc, serverTimestamp, getDoc, setDoc } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 
 export function useAuth() {
@@ -26,7 +27,34 @@ export function useAuth() {
   const login = async (email: string, password: string) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      router.push('/dashboard'); // 로그인 성공 시 대시보드로 이동
+      
+      // Firestore users 컬렉션 업데이트
+      const userRef = doc(db, 'users', userCredential.user.uid);
+      const userDoc = await getDoc(userRef);
+
+      if (!userDoc.exists()) {
+        // 사용자 문서가 없으면 생성
+        await setDoc(userRef, {
+          uid: userCredential.user.uid,
+          email: userCredential.user.email,
+          role: 'user',  // 기본 역할
+          status: 'active',
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          lastLoginAt: serverTimestamp(),
+          createdBy: userCredential.user.uid,
+          updatedBy: userCredential.user.uid
+        });
+      } else {
+        // 문서가 있으면 업데이트만
+        await updateDoc(userRef, {
+          lastLoginAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          updatedBy: userCredential.user.uid
+        });
+      }
+
+      router.push('/dashboard');
       return userCredential.user;
     } catch (error) {
       console.error('Login error:', error);
@@ -37,7 +65,7 @@ export function useAuth() {
   const logout = async () => {
     try {
       await signOut(auth);
-      router.push('/'); // 로그아웃 시 홈으로 이동
+      router.push('/');
     } catch (error) {
       console.error('Logout error:', error);
       throw error;

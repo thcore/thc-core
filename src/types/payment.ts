@@ -16,6 +16,18 @@ export interface Site {
     status: 'ACTIVE' | 'INACTIVE';
   }
   
+  // 결재 요청 폼 데이터
+  export interface PaymentRequestFormData {
+    siteId: string;
+    vendorId: string;
+    title: string;
+    amount: number;
+    description: string;
+    requestDate: string;
+    dueDate: string;
+    attachments?: File[];
+  }
+  
   // 결재 요청
   export interface PaymentRequest {
     id: string;

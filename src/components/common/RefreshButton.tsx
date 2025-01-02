@@ -1,6 +1,6 @@
 'use client'
 
-import { RefreshCw } from 'lucide-react'
+import { ArrowPathIcon } from '@heroicons/react/24/outline'
 import { useEffect, useState } from 'react'
 
 interface RefreshButtonProps {
@@ -58,7 +58,7 @@ const RefreshButton = ({ onClick, isLoading, lastUpdated }: RefreshButtonProps) 
         className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50"
         title="데이터 새로고침"
       >
-        <RefreshCw 
+        <ArrowPathIcon 
           className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} 
         />
         <span>새로고침</span>
