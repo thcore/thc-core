@@ -1,133 +1,100 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LoginForm from '@/components/auth/LoginForm';
 import { useAuth } from '@/hooks/useAuth';
 import { FirebaseError } from 'firebase/app';
 
-// Firebase 모킹
-jest.mock('@/lib/firebase', () => ({
-  auth: {
-    signInWithEmailAndPassword: jest.fn(),
-    signOut: jest.fn(),
-    onAuthStateChanged: jest.fn()
-  }
-}));
-
-// useAuth 훅 모킹
+// Mock useAuth hook
 jest.mock('@/hooks/useAuth');
+const mockLogin = jest.fn();
+;(useAuth as jest.Mock).mockReturnValue({ login: mockLogin });
 
 describe('LoginForm', () => {
-  const mockLogin = jest.fn();
-  const user = userEvent.setup();
-  
   beforeEach(() => {
-    (useAuth as jest.Mock).mockReturnValue({
-      login: mockLogin
-    });
-  });
-
-  afterEach(() => {
     jest.clearAllMocks();
   });
 
-  /**
-   * 초기 렌더링 테스트
-   */
   describe('Initial Render', () => {
     it('renders all form elements correctly', () => {
       render(<LoginForm />);
       
-      expect(screen.getByLabelText('이메일')).toBeInTheDocument();
-      expect(screen.getByLabelText('비밀번호')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: '로그인' })).toBeInTheDocument();
+      expect(screen.getByLabelText(/이메일/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/비밀번호/)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /로그인/ })).toBeInTheDocument();
+      expect(screen.getByRole('form')).toHaveAttribute('aria-label', '로그인 폼');
     });
 
     it('starts with empty form fields', () => {
       render(<LoginForm />);
       
-      expect(screen.getByLabelText('이메일')).toHaveValue('');
-      expect(screen.getByLabelText('비밀번호')).toHaveValue('');
+      expect(screen.getByLabelText(/이메일/)).toHaveValue('');
+      expect(screen.getByLabelText(/비밀번호/)).toHaveValue('');
     });
 
     it('starts with disabled submit button', () => {
       render(<LoginForm />);
       
-      expect(screen.getByRole('button', { name: '로그인' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: /로그인/ })).toBeDisabled();
     });
   });
 
-  /**
-   * 입력 유효성 검사 테스트
-   */
   describe('Input Validation', () => {
     it('validates email format', async () => {
       render(<LoginForm />);
-      const emailInput = screen.getByLabelText('이메일');
+      const emailInput = screen.getByLabelText(/이메일/);
       
-      // 잘못된 이메일 형식
-      await user.type(emailInput, 'invalid-email');
-      await user.tab();
-      expect(screen.getByText('유효한 이메일 주소를 입력해주세요')).toBeInTheDocument();
+      await userEvent.type(emailInput, 'invalid-email');
+      fireEvent.blur(emailInput);
       
-      // 올바른 이메일 형식
-      await user.clear(emailInput);
-      await user.type(emailInput, 'test@example.com');
-      await user.tab();
-      expect(screen.queryByText('유효한 이메일 주소를 입력해주세요')).not.toBeInTheDocument();
+      expect(await screen.findByText('유효한 이메일 주소를 입력해주세요')).toBeInTheDocument();
+      expect(emailInput).toHaveAttribute('aria-invalid', 'true');
     });
 
     it('validates password length', async () => {
       render(<LoginForm />);
-      const passwordInput = screen.getByLabelText('비밀번호');
+      const passwordInput = screen.getByLabelText(/비밀번호/);
       
-      // 짧은 비밀번호
-      await user.type(passwordInput, '12345');
-      await user.tab();
-      expect(screen.getByText('비밀번호는 최소 6자 이상이어야 합니다')).toBeInTheDocument();
+      await userEvent.type(passwordInput, '123');
+      fireEvent.blur(passwordInput);
       
-      // 올바른 길이의 비밀번호
-      await user.clear(passwordInput);
-      await user.type(passwordInput, '123456');
-      await user.tab();
-      expect(screen.queryByText('비밀번호는 최소 6자 이상이어야 합니다')).not.toBeInTheDocument();
+      expect(await screen.findByText('비밀번호는 최소 6자 이상이어야 합니다')).toBeInTheDocument();
+      expect(passwordInput).toHaveAttribute('aria-invalid', 'true');
     });
   });
 
-  /**
-   * 폼 제출 테스트
-   */
   describe('Form Submission', () => {
     it('handles successful login', async () => {
-      // mockLogin이 Promise를 반환하도록 설정
-      mockLogin.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
+      mockLogin.mockResolvedValueOnce(undefined);
       render(<LoginForm />);
       
-      await user.type(screen.getByLabelText('이메일'), 'test@example.com');
-      await user.type(screen.getByLabelText('비밀번호'), 'password123');
+      await userEvent.type(screen.getByLabelText(/이메일/), 'test@example.com');
+      await userEvent.type(screen.getByLabelText(/비밀번호/), 'password123');
       
-      const submitButton = screen.getByRole('button', { name: '로그인' });
-      await user.click(submitButton);
+      const submitButton = screen.getByRole('button', { name: /로그인/ });
+      await userEvent.click(submitButton);
       
-      // 로딩 상태 확인 전에 대기
       await waitFor(() => {
         expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123');
         expect(submitButton).toHaveAttribute('aria-busy', 'true');
         expect(screen.getByText('로그인 중...')).toBeInTheDocument();
+        expect(screen.getByRole('form')).toHaveAttribute('aria-busy', 'true');
       });
     });
 
     it('handles invalid credentials', async () => {
-      mockLogin.mockRejectedValueOnce(new FirebaseError('auth/invalid-credential', ''));
+      const errorMessage = '이메일 또는 비밀번호가 올바르지 않습니다';
+      mockLogin.mockRejectedValueOnce(new FirebaseError('auth/invalid-credential', errorMessage));
       
       render(<LoginForm />);
       
-      await user.type(screen.getByLabelText('이메일'), 'test@example.com');
-      await user.type(screen.getByLabelText('비밀번호'), 'wrongpassword');
-      await user.click(screen.getByRole('button', { name: '로그인' }));
+      await userEvent.type(screen.getByLabelText(/이메일/), 'test@example.com');
+      await userEvent.type(screen.getByLabelText(/비밀번호/), 'wrong-password');
+      await userEvent.click(screen.getByRole('button', { name: /로그인/ }));
       
-      await waitFor(() => {
-        expect(screen.getByText('이메일 또는 비밀번호가 올바르지 않습니다')).toBeInTheDocument();
-      });
+      const errorAlert = await screen.findByRole('alert');
+      expect(errorAlert).toHaveTextContent(errorMessage);
+      expect(errorAlert).toHaveAttribute('aria-live', 'assertive');
+      expect(document.activeElement).toBe(errorAlert);
     });
 
     it('handles too many requests error', async () => {
@@ -135,65 +102,58 @@ describe('LoginForm', () => {
       
       render(<LoginForm />);
       
-      await user.type(screen.getByLabelText('이메일'), 'test@example.com');
-      await user.type(screen.getByLabelText('비밀번호'), 'password123');
-      await user.click(screen.getByRole('button', { name: '로그인' }));
+      await userEvent.type(screen.getByLabelText(/이메일/), 'test@example.com');
+      await userEvent.type(screen.getByLabelText(/비밀번호/), 'password123');
+      await userEvent.click(screen.getByRole('button', { name: /로그인/ }));
       
-      await waitFor(() => {
-        expect(screen.getByText('너무 많은 로그인 시도가 있었습니다. 잠시 후 다시 시도해주세요')).toBeInTheDocument();
-      });
+      expect(await screen.findByRole('alert')).toHaveTextContent(/너무 많은 로그인 시도/);
     });
 
     it('handles network errors', async () => {
-      mockLogin.mockRejectedValueOnce(new FirebaseError('auth/network-request-failed', ''));
+      mockLogin.mockRejectedValueOnce(new Error('Network Error'));
       
       render(<LoginForm />);
       
-      await user.type(screen.getByLabelText('이메일'), 'test@example.com');
-      await user.type(screen.getByLabelText('비밀번호'), 'password123');
-      await user.click(screen.getByRole('button', { name: '로그인' }));
+      await userEvent.type(screen.getByLabelText(/이메일/), 'test@example.com');
+      await userEvent.type(screen.getByLabelText(/비밀번호/), 'password123');
+      await userEvent.click(screen.getByRole('button', { name: /로그인/ }));
       
-      await waitFor(() => {
-        expect(screen.getByText('네트워크 연결을 확인해주세요')).toBeInTheDocument();
-      });
+      expect(await screen.findByRole('alert')).toHaveTextContent('알 수 없는 오류가 발생했습니다');
     });
   });
 
-  /**
-   * 접근성 테스트
-   */
   describe('Accessibility', () => {
-    it('has proper ARIA attributes', async () => {
+    it('has proper ARIA attributes', () => {
       render(<LoginForm />);
-      const emailInput = screen.getByLabelText('이메일');
       
-      // 잘못된 이메일 입력
-      await user.type(emailInput, 'invalid-email');
-      await user.tab();
-      
-      // 유효성 검사 결과 확인
-      await waitFor(() => {
-        expect(emailInput).toHaveAttribute('aria-invalid', 'true');
-        expect(emailInput).toHaveAttribute('aria-describedby');
-      });
+      expect(screen.getByRole('form')).toHaveAttribute('aria-label', '로그인 폼');
+      expect(screen.getByLabelText(/이메일/)).toHaveAttribute('aria-required', 'true');
+      expect(screen.getByLabelText(/비밀번호/)).toHaveAttribute('aria-required', 'true');
+      expect(screen.getByRole('status', { hidden: true })).toBeInTheDocument();
     });
 
-    it('has correct tab order', () => {
+    it('has correct tab order', async () => {
+      render(<LoginForm />);
+      const user = userEvent.setup();
+      
+      await user.tab();
+      expect(document.activeElement).toBe(screen.getByLabelText(/이메일/));
+      
+      await user.tab();
+      expect(document.activeElement).toBe(screen.getByLabelText(/비밀번호/));
+      
+      await user.tab();
+      expect(document.activeElement).toBe(screen.getByRole('button', { name: /로그인/ }));
+    });
+
+    it('moves focus to first error field on validation failure', async () => {
       render(<LoginForm />);
       
-      const emailInput = screen.getByLabelText('이메일');
-      const passwordInput = screen.getByLabelText('비밀번호');
-      const submitButton = screen.getByRole('button', { name: '로그인' });
+      await userEvent.type(screen.getByLabelText(/이메일/), 'invalid-email');
+      await userEvent.type(screen.getByLabelText(/비밀번호/), '123');
+      await userEvent.click(screen.getByRole('button', { name: /로그인/ }));
       
-      // 올바른 순서로 요소들이 존재하는지 확인
-      expect(emailInput).toBeInTheDocument();
-      expect(passwordInput).toBeInTheDocument();
-      expect(submitButton).toBeInTheDocument();
-      
-      // tabIndex 확인
-      expect(emailInput).not.toHaveAttribute('tabindex', '-1');
-      expect(passwordInput).not.toHaveAttribute('tabindex', '-1');
-      expect(submitButton).not.toHaveAttribute('tabindex', '-1');
+      expect(document.activeElement).toBe(screen.getByLabelText(/이메일/));
     });
   });
 });

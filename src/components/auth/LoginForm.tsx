@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { FirebaseError } from 'firebase/app'
 import { getFirebaseErrorMessage } from '@/utils/firebase-errors'
@@ -22,6 +22,14 @@ export default function LoginForm() {
   const [errors, setErrors] = useState<ValidationErrors>({})
   const [isLoading, setIsLoading] = useState(false)
   const { login } = useAuth()
+  const submitErrorRef = useRef<HTMLDivElement>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+
+  useEffect(() => {
+    if (errors.submit) {
+      submitErrorRef.current?.focus()
+    }
+  }, [errors.submit])
 
   const validateEmail = (email: string): string | undefined => {
     if (!email) return undefined
@@ -71,7 +79,11 @@ export default function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!validateForm()) return
+    if (!validateForm()) {
+      const firstErrorField = formRef.current?.querySelector('[aria-invalid="true"]') as HTMLElement
+      firstErrorField?.focus()
+      return
+    }
     
     setIsLoading(true)
     try {
@@ -93,7 +105,18 @@ export default function LoginForm() {
     Boolean(errors.password)
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+    <form 
+      ref={formRef}
+      onSubmit={handleSubmit} 
+      className="space-y-4" 
+      noValidate
+      aria-label="로그인 폼"
+      aria-busy={isLoading}
+    >
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {isLoading ? '로그인 처리 중입니다.' : ''}
+      </div>
+
       <Input
         id="email"
         name="email"
@@ -107,6 +130,9 @@ export default function LoginForm() {
         placeholder="이메일 주소를 입력하세요"
         autoComplete="email"
         required
+        aria-required="true"
+        aria-invalid={Boolean(errors.email)}
+        aria-describedby={errors.email ? 'email-error' : undefined}
       />
 
       <Input
@@ -122,10 +148,19 @@ export default function LoginForm() {
         placeholder="비밀번호를 입력하세요"
         autoComplete="current-password"
         required
+        aria-required="true"
+        aria-invalid={Boolean(errors.password)}
+        aria-describedby={errors.password ? 'password-error' : undefined}
       />
 
       {errors.submit && (
-        <div className="text-[var(--colors-danger-500)] text-sm" role="alert">
+        <div 
+          ref={submitErrorRef}
+          className="text-[var(--colors-danger-500)] text-sm p-2 rounded bg-[var(--colors-danger-50)]" 
+          role="alert"
+          aria-live="assertive"
+          tabIndex={-1}
+        >
           {errors.submit}
         </div>
       )}
@@ -135,8 +170,9 @@ export default function LoginForm() {
         disabled={isSubmitDisabled}
         loading={isLoading}
         className="w-full"
+        aria-busy={isLoading}
       >
-        로그인
+        {isLoading ? '로그인 중...' : '로그인'}
       </Button>
     </form>
   )
