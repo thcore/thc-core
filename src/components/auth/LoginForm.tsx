@@ -96,6 +96,9 @@ export default function LoginForm() {
         ? getFirebaseErrorMessage(error)
         : '알 수 없는 오류가 발생했습니다'
       setErrors(prev => ({ ...prev, submit: message }))
+      if (submitErrorRef.current) {
+        submitErrorRef.current.focus()
+      }
     } finally {
       setIsLoading(false)
     }
