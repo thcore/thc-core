@@ -81,7 +81,7 @@ export default function LoginForm() {
     e.preventDefault()
     
     if (!validateForm()) {
-      const firstErrorField = formRef.current?.querySelector('[aria-invalid="true"]') as HTMLElement
+      const firstErrorField = formRef.current?.querySelector<HTMLInputElement>('input[aria-invalid="true"]')
       firstErrorField?.focus()
       return
     }
@@ -90,17 +90,32 @@ export default function LoginForm() {
     setFormError(null)
     
     try {
+      const form = formRef.current
+      const submitButton = form?.querySelector('button[type="submit"]')
+      
+      if (form && submitButton) {
+        form.setAttribute('aria-busy', 'true')
+        submitButton.setAttribute('aria-busy', 'true')
+        submitButton.textContent = '로그인 중...'
+      }
+
       await login(formData.email, formData.password)
     } catch (error) {
       const message = error instanceof FirebaseError 
         ? getFirebaseErrorMessage(error)
         : '알 수 없는 오류가 발생했습니다'
       setErrors(prev => ({ ...prev, submit: message }))
-      if (submitErrorRef.current) {
-        submitErrorRef.current.focus()
-      }
+      submitErrorRef.current?.focus()
     } finally {
       setIsLoading(false)
+      const form = formRef.current
+      const submitButton = form?.querySelector('button[type="submit"]')
+      
+      if (form && submitButton) {
+        form.setAttribute('aria-busy', 'false')
+        submitButton.setAttribute('aria-busy', 'false')
+        submitButton.textContent = '로그인'
+      }
     }
   }
 
@@ -142,6 +157,7 @@ export default function LoginForm() {
         autoComplete="email"
         required
         aria-required="true"
+        className="shadow-sm hover:border-[var(--colors-border-hover)] focus:ring-[var(--colors-border-focus)]"
       />
 
       <Input
@@ -158,12 +174,13 @@ export default function LoginForm() {
         autoComplete="current-password"
         required
         aria-required="true"
+        className="shadow-sm hover:border-[var(--colors-border-hover)] focus:ring-[var(--colors-border-focus)]"
       />
 
       {errors.submit && (
         <div 
           ref={submitErrorRef}
-          className="rounded bg-[var(--colors-danger-50)] p-[var(--element-spacing-sm)] text-[var(--typography-sizes-sm)] text-[var(--colors-danger-500)]" 
+          className="rounded bg-[var(--colors-danger-50)] p-[var(--element-spacing-md)] text-[var(--typography-sizes-sm)] text-[var(--colors-danger-500)] shadow-sm" 
           role="alert"
           aria-live="assertive"
           tabIndex={-1}
@@ -176,7 +193,8 @@ export default function LoginForm() {
         type="submit"
         disabled={isSubmitDisabled}
         loading={isLoading}
-        className="w-full"
+        className="w-full shadow-sm"
+        aria-busy={isLoading}
       >
         {isLoading ? '로그인 중...' : '로그인'}
       </Button>
