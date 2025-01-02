@@ -81,7 +81,7 @@ export default function LoginForm() {
     e.preventDefault()
     
     if (!validateForm()) {
-      const firstErrorField = formRef.current?.querySelector<HTMLInputElement>('input[aria-invalid="true"]')
+      const firstErrorField = formRef.current?.querySelector<HTMLInputElement>('[aria-invalid="true"]')
       firstErrorField?.focus()
       return
     }
@@ -90,15 +90,6 @@ export default function LoginForm() {
     setFormError(null)
     
     try {
-      const form = formRef.current
-      const submitButton = form?.querySelector('button[type="submit"]')
-      
-      if (form && submitButton) {
-        form.setAttribute('aria-busy', 'true')
-        submitButton.setAttribute('aria-busy', 'true')
-        submitButton.textContent = '로그인 중...'
-      }
-
       await login(formData.email, formData.password)
     } catch (error) {
       const message = error instanceof FirebaseError 
@@ -108,14 +99,6 @@ export default function LoginForm() {
       submitErrorRef.current?.focus()
     } finally {
       setIsLoading(false)
-      const form = formRef.current
-      const submitButton = form?.querySelector('button[type="submit"]')
-      
-      if (form && submitButton) {
-        form.setAttribute('aria-busy', 'false')
-        submitButton.setAttribute('aria-busy', 'false')
-        submitButton.textContent = '로그인'
-      }
     }
   }
 
