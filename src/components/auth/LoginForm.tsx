@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { FirebaseError } from 'firebase/app'
 import { getFirebaseErrorMessage } from '@/utils/firebase-errors'
 import Button from '@/components/common/Button'
+import Input from '@/components/common/Input'
 
 interface FormData {
   email: string
@@ -78,21 +79,17 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
     if (!validateForm()) {
-      const firstErrorField = formRef.current?.querySelector('[aria-invalid="true"]') as HTMLElement;
-      firstErrorField?.focus();
-      return;
+      const firstErrorField = formRef.current?.querySelector('[aria-invalid="true"]') as HTMLElement
+      firstErrorField?.focus()
+      return
     }
+
     setIsLoading(true)
     setFormError(null)
     
     try {
-      const form = e.currentTarget as HTMLFormElement
-      form.setAttribute('aria-busy', 'true')
-      const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement
-      submitButton.setAttribute('aria-busy', 'true')
-      submitButton.textContent = '로그인 중...'
-
       await login(formData.email, formData.password)
     } catch (error) {
       const message = error instanceof FirebaseError 
@@ -101,11 +98,6 @@ export default function LoginForm() {
       setErrors(prev => ({ ...prev, submit: message }))
     } finally {
       setIsLoading(false)
-      const form = e.currentTarget as HTMLFormElement
-      form.setAttribute('aria-busy', 'false')
-      const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement
-      submitButton.setAttribute('aria-busy', 'false')
-      submitButton.textContent = '로그인'
     }
   }
 
@@ -119,7 +111,7 @@ export default function LoginForm() {
     <form 
       ref={formRef}
       onSubmit={handleSubmit} 
-      className="space-y-4" 
+      className="space-y-[var(--element-spacing-lg)]" 
       noValidate
       aria-label="로그인 폼"
       aria-busy={isLoading}
@@ -130,67 +122,45 @@ export default function LoginForm() {
         role="status"
         className="sr-only"
       >
-        {formError && formError}
+        {isLoading ? '로그인 처리 중입니다.' : formError}
       </div>
 
-      <div className="space-y-2">
-        <label htmlFor="email" className="block text-[var(--typography-sizes-sm)] font-[var(--typography-weights-medium)] text-[var(--colors-text-secondary)]">
-          이메일
-        </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          value={formData.email}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          disabled={isLoading}
-          placeholder="이메일 주소를 입력하세요"
-          autoComplete="email"
-          required
-          aria-required="true"
-          aria-invalid={Boolean(errors.email)}
-          aria-describedby={errors.email ? 'email-error' : undefined}
-          tabIndex={1}
-        />
-        {errors.email && (
-          <p id="email-error" className="text-[var(--colors-danger-500)] text-sm">
-            {errors.email}
-          </p>
-        )}
-      </div>
+      <Input
+        id="email"
+        name="email"
+        type="email"
+        value={formData.email}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        disabled={isLoading}
+        label="이메일"
+        error={errors.email}
+        placeholder="이메일 주소를 입력하세요"
+        autoComplete="email"
+        required
+        aria-required="true"
+      />
 
-      <div className="space-y-2">
-        <label htmlFor="password" className="block text-[var(--typography-sizes-sm)] font-[var(--typography-weights-medium)] text-[var(--colors-text-secondary)]">
-          비밀번호
-        </label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          value={formData.password}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          disabled={isLoading}
-          placeholder="비밀번호를 입력하세요"
-          autoComplete="current-password"
-          required
-          aria-required="true"
-          aria-invalid={Boolean(errors.password)}
-          aria-describedby={errors.password ? 'password-error' : undefined}
-          tabIndex={2}
-        />
-        {errors.password && (
-          <p id="password-error" className="text-[var(--colors-danger-500)] text-sm">
-            {errors.password}
-          </p>
-        )}
-      </div>
+      <Input
+        id="password"
+        name="password"
+        type="password"
+        value={formData.password}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        disabled={isLoading}
+        label="비밀번호"
+        error={errors.password}
+        placeholder="비밀번호를 입력하세요"
+        autoComplete="current-password"
+        required
+        aria-required="true"
+      />
 
       {errors.submit && (
         <div 
           ref={submitErrorRef}
-          className="text-[var(--colors-danger-500)] text-sm p-2 rounded bg-[var(--colors-danger-50)]" 
+          className="rounded bg-[var(--colors-danger-50)] p-[var(--element-spacing-sm)] text-[var(--typography-sizes-sm)] text-[var(--colors-danger-500)]" 
           role="alert"
           aria-live="assertive"
           tabIndex={-1}
@@ -204,8 +174,6 @@ export default function LoginForm() {
         disabled={isSubmitDisabled}
         loading={isLoading}
         className="w-full"
-        aria-busy={isLoading}
-        tabIndex={3}
       >
         {isLoading ? '로그인 중...' : '로그인'}
       </Button>
